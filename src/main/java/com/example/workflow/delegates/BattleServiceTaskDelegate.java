@@ -4,8 +4,13 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
+
 @Component("battleServiceTask")
 public class BattleServiceTaskDelegate implements JavaDelegate {
+
+	private static int battleRound = 0;
+
 	@Override
 	public void execute(DelegateExecution delegateExecution) throws Exception {
 
@@ -13,9 +18,18 @@ public class BattleServiceTaskDelegate implements JavaDelegate {
 		var allies = (int) delegateExecution.getVariable("allies");
 		var enemies = (int) delegateExecution.getVariable("enemies");
 
-		var isVictory = allies > enemies;
+		System.out.println("Battle round " + (++battleRound));
+		if ( new Random().nextBoolean() ) {
+			System.out.println("Enemy killed");
+			enemies--;
+		} else {
+			System.out.println("Ally killed");
+			allies--;
+		}
+		System.out.println("allies: " + allies + " enemies: " + enemies);
+		System.out.println();
 
-		// set variables to Camunda context
-		delegateExecution.setVariable("isVictory", isVictory);
+		delegateExecution.setVariable("allies", allies);
+		delegateExecution.setVariable("enemies", enemies);
 	}
 }

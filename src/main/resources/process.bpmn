@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.27.0">
   <bpmn:process id="epic-battle-project-process" isExecutable="true" camunda:historyTimeToLive="180">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_1fp17al</bpmn:outgoing>
@@ -13,6 +13,7 @@
       <bpmn:incoming>SequenceFlow_1fp17al</bpmn:incoming>
       <bpmn:outgoing>Flow_0qurl34</bpmn:outgoing>
       <bpmn:outgoing>Flow_1isb66y</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1eiqctb</bpmn:outgoing>
     </bpmn:parallelGateway>
     <bpmn:sequenceFlow id="Flow_0qurl34" sourceRef="Gateway_1xutunl" targetRef="prepare_allies_army" />
     <bpmn:sequenceFlow id="Flow_1isb66y" sourceRef="Gateway_1xutunl" targetRef="prepare_enemies_army" />
@@ -28,16 +29,17 @@
     <bpmn:parallelGateway id="Gateway_0c14vvt">
       <bpmn:incoming>Flow_0byjtdx</bpmn:incoming>
       <bpmn:incoming>Flow_128r4ih</bpmn:incoming>
+      <bpmn:incoming>Flow_1a62qcm</bpmn:incoming>
       <bpmn:outgoing>Flow_0p819md</bpmn:outgoing>
     </bpmn:parallelGateway>
     <bpmn:sequenceFlow id="Flow_128r4ih" sourceRef="prepare_enemies_army" targetRef="Gateway_0c14vvt" />
     <bpmn:sequenceFlow id="Flow_0p819md" sourceRef="Gateway_0c14vvt" targetRef="battle" />
     <bpmn:exclusiveGateway id="Gateway_09uyg1u">
-      <bpmn:incoming>Flow_07lbglp</bpmn:incoming>
+      <bpmn:incoming>Flow_0pkacow</bpmn:incoming>
       <bpmn:outgoing>Flow_1mzw0cr</bpmn:outgoing>
       <bpmn:outgoing>Flow_1ion0sq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_07lbglp" sourceRef="battle" targetRef="Gateway_09uyg1u" />
+    <bpmn:sequenceFlow id="Flow_07lbglp" sourceRef="battle" targetRef="evaluate_result" />
     <bpmn:sequenceFlow id="Flow_1mzw0cr" sourceRef="Gateway_09uyg1u" targetRef="celebrate_victory">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${isVictory}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -47,8 +49,12 @@
     <bpmn:sequenceFlow id="Flow_10q75h4" sourceRef="celebrate_victory" targetRef="EndEvent_0x6ir2l" />
     <bpmn:sequenceFlow id="Flow_0nkx14v" sourceRef="get_defeated" targetRef="EndEvent_0x6ir2l" />
     <bpmn:serviceTask id="battle" name="Battle" camunda:delegateExpression="${battleServiceTask}">
+      <bpmn:extensionElements />
       <bpmn:incoming>Flow_0p819md</bpmn:incoming>
       <bpmn:outgoing>Flow_07lbglp</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="battlefield">
+        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">${ nrOfCompletedInstances == nrOfInstances || allies&lt;1 || enemies&lt;1 }</bpmn:completionCondition>
+      </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:serviceTask>
     <bpmn:userTask id="celebrate_victory" name="Celebrate Victory">
       <bpmn:incoming>Flow_1mzw0cr</bpmn:incoming>
@@ -58,92 +64,123 @@
       <bpmn:incoming>Flow_1ion0sq</bpmn:incoming>
       <bpmn:outgoing>Flow_0nkx14v</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1eiqctb" sourceRef="Gateway_1xutunl" targetRef="prepare_the_battlefield" />
+    <bpmn:sequenceFlow id="Flow_1a62qcm" sourceRef="prepare_the_battlefield" targetRef="Gateway_0c14vvt" />
+    <bpmn:serviceTask id="prepare_the_battlefield" name="Prepare The Battlefield" camunda:delegateExpression="${ prepareBattlefieldServiceTask }">
+      <bpmn:incoming>Flow_1eiqctb</bpmn:incoming>
+      <bpmn:outgoing>Flow_1a62qcm</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0pkacow" sourceRef="evaluate_result" targetRef="Gateway_09uyg1u" />
+    <bpmn:serviceTask id="evaluate_result" name="Evaluate Result" camunda:delegateExpression="${ evaluateResultServiceTask }">
+      <bpmn:incoming>Flow_07lbglp</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pkacow</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="epic-battle-project-process">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="179" y="189" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_027f2sf_di" bpmnElement="Gateway_1xutunl">
-        <dc:Bounds x="265" y="182" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_16r83z4_di" bpmnElement="prepare_allies_army">
-        <dc:Bounds x="330" y="80" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1oyjp6v_di" bpmnElement="prepare_enemies_army">
-        <dc:Bounds x="330" y="250" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1dvu6z3_di" bpmnElement="Gateway_0c14vvt">
-        <dc:Bounds x="445" y="182" width="50" height="50" />
+      <bpmndi:BPMNShape id="EndEvent_0x6ir2l_di" bpmnElement="EndEvent_0x6ir2l">
+        <dc:Bounds x="1052" y="189" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_09uyg1u_di" bpmnElement="Gateway_09uyg1u" isMarkerVisible="true">
-        <dc:Bounds x="695" y="182" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0x6ir2l_di" bpmnElement="EndEvent_0x6ir2l">
-        <dc:Bounds x="942" y="189" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0jmrkzz_di" bpmnElement="battle">
-        <dc:Bounds x="540" y="167" width="100" height="80" />
+        <dc:Bounds x="805" y="182" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1aqt2af_di" bpmnElement="celebrate_victory">
-        <dc:Bounds x="760" y="80" width="100" height="80" />
+        <dc:Bounds x="870" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1s20gzj_di" bpmnElement="get_defeated">
-        <dc:Bounds x="760" y="250" width="100" height="80" />
+        <dc:Bounds x="870" y="250" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_1fp17al_di" bpmnElement="SequenceFlow_1fp17al">
-        <di:waypoint x="215" y="207" />
-        <di:waypoint x="265" y="207" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0qurl34_di" bpmnElement="Flow_0qurl34">
-        <di:waypoint x="290" y="182" />
-        <di:waypoint x="290" y="120" />
-        <di:waypoint x="330" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1isb66y_di" bpmnElement="Flow_1isb66y">
-        <di:waypoint x="290" y="232" />
-        <di:waypoint x="290" y="290" />
-        <di:waypoint x="330" y="290" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0byjtdx_di" bpmnElement="Flow_0byjtdx">
-        <di:waypoint x="430" y="120" />
-        <di:waypoint x="470" y="120" />
-        <di:waypoint x="470" y="182" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_128r4ih_di" bpmnElement="Flow_128r4ih">
-        <di:waypoint x="430" y="290" />
-        <di:waypoint x="470" y="290" />
-        <di:waypoint x="470" y="232" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0p819md_di" bpmnElement="Flow_0p819md">
-        <di:waypoint x="495" y="207" />
-        <di:waypoint x="540" y="207" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_07lbglp_di" bpmnElement="Flow_07lbglp">
-        <di:waypoint x="640" y="207" />
-        <di:waypoint x="695" y="207" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1mzw0cr_di" bpmnElement="Flow_1mzw0cr">
-        <di:waypoint x="720" y="182" />
-        <di:waypoint x="720" y="120" />
-        <di:waypoint x="760" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ion0sq_di" bpmnElement="Flow_1ion0sq">
-        <di:waypoint x="720" y="232" />
-        <di:waypoint x="720" y="290" />
-        <di:waypoint x="760" y="290" />
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="159" y="189" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_027f2sf_di" bpmnElement="Gateway_1xutunl">
+        <dc:Bounds x="245" y="182" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16r83z4_di" bpmnElement="prepare_allies_army">
+        <dc:Bounds x="310" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1oyjp6v_di" bpmnElement="prepare_enemies_army">
+        <dc:Bounds x="310" y="253" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1dvu6z3_di" bpmnElement="Gateway_0c14vvt">
+        <dc:Bounds x="425" y="182" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jmrkzz_di" bpmnElement="battle">
+        <dc:Bounds x="520" y="167" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ar4npq_di" bpmnElement="prepare_the_battlefield">
+        <dc:Bounds x="310" y="167" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1pdj716_di" bpmnElement="evaluate_result">
+        <dc:Bounds x="660" y="167" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_10q75h4_di" bpmnElement="Flow_10q75h4">
-        <di:waypoint x="860" y="120" />
-        <di:waypoint x="901" y="120" />
-        <di:waypoint x="901" y="207" />
-        <di:waypoint x="942" y="207" />
+        <di:waypoint x="970" y="120" />
+        <di:waypoint x="1011" y="120" />
+        <di:waypoint x="1011" y="207" />
+        <di:waypoint x="1052" y="207" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0nkx14v_di" bpmnElement="Flow_0nkx14v">
-        <di:waypoint x="860" y="290" />
-        <di:waypoint x="901" y="290" />
-        <di:waypoint x="901" y="207" />
-        <di:waypoint x="942" y="207" />
+        <di:waypoint x="970" y="290" />
+        <di:waypoint x="1011" y="290" />
+        <di:waypoint x="1011" y="207" />
+        <di:waypoint x="1052" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pkacow_di" bpmnElement="Flow_0pkacow">
+        <di:waypoint x="760" y="207" />
+        <di:waypoint x="805" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mzw0cr_di" bpmnElement="Flow_1mzw0cr">
+        <di:waypoint x="830" y="182" />
+        <di:waypoint x="830" y="120" />
+        <di:waypoint x="870" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ion0sq_di" bpmnElement="Flow_1ion0sq">
+        <di:waypoint x="830" y="232" />
+        <di:waypoint x="830" y="290" />
+        <di:waypoint x="870" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1fp17al_di" bpmnElement="SequenceFlow_1fp17al">
+        <di:waypoint x="195" y="207" />
+        <di:waypoint x="245" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qurl34_di" bpmnElement="Flow_0qurl34">
+        <di:waypoint x="270" y="182" />
+        <di:waypoint x="270" y="120" />
+        <di:waypoint x="310" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1isb66y_di" bpmnElement="Flow_1isb66y">
+        <di:waypoint x="270" y="232" />
+        <di:waypoint x="270" y="293" />
+        <di:waypoint x="310" y="293" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1eiqctb_di" bpmnElement="Flow_1eiqctb">
+        <di:waypoint x="295" y="207" />
+        <di:waypoint x="310" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0byjtdx_di" bpmnElement="Flow_0byjtdx">
+        <di:waypoint x="410" y="120" />
+        <di:waypoint x="450" y="120" />
+        <di:waypoint x="450" y="182" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_128r4ih_di" bpmnElement="Flow_128r4ih">
+        <di:waypoint x="410" y="293" />
+        <di:waypoint x="450" y="293" />
+        <di:waypoint x="450" y="232" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1a62qcm_di" bpmnElement="Flow_1a62qcm">
+        <di:waypoint x="410" y="207" />
+        <di:waypoint x="425" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p819md_di" bpmnElement="Flow_0p819md">
+        <di:waypoint x="475" y="207" />
+        <di:waypoint x="520" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07lbglp_di" bpmnElement="Flow_07lbglp">
+        <di:waypoint x="620" y="207" />
+        <di:waypoint x="660" y="207" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
