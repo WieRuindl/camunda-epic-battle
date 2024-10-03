@@ -19,6 +19,7 @@ public class BattleServiceTaskDelegate implements JavaDelegate {
 		var enemies = (int) delegateExecution.getVariable("enemies");
 
 		System.out.println("Battle round " + (++battleRound));
+		Thread.sleep(500);
 		if ( new Random().nextBoolean() ) {
 			System.out.println("Enemy killed");
 			enemies--;

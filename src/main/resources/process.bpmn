@@ -53,7 +53,7 @@
       <bpmn:incoming>Flow_0p819md</bpmn:incoming>
       <bpmn:incoming>Flow_09q6eg9</bpmn:incoming>
       <bpmn:outgoing>Flow_07lbglp</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics camunda:collection="battlefield">
+      <bpmn:multiInstanceLoopCharacteristics camunda:asyncBefore="true" camunda:collection="battlefield">
         <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">${ nrOfCompletedInstances == nrOfInstances || allies&lt;1 || enemies&lt;1 }</bpmn:completionCondition>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:serviceTask>
