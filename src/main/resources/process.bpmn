@@ -19,6 +19,7 @@
     <bpmn:sequenceFlow id="Flow_1isb66y" sourceRef="Gateway_1xutunl" targetRef="prepare_enemies_army" />
     <bpmn:serviceTask id="prepare_allies_army" name="Prepare Allies Army" camunda:delegateExpression="${prepareAlliesArmyServiceTask}">
       <bpmn:incoming>Flow_0qurl34</bpmn:incoming>
+      <bpmn:incoming>Flow_1s0cdgh</bpmn:incoming>
       <bpmn:outgoing>Flow_0byjtdx</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="prepare_enemies_army" name="Prepare Enemies Army" camunda:delegateExpression="${prepareEnemiesArmyServiceTask}">
@@ -117,7 +118,26 @@
     <bpmn:sequenceFlow id="Flow_1pus6yr" sourceRef="Gateway_1hpfy85" targetRef="Activity_1qp7ezt">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ return_to_battle_decision }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:boundaryEvent id="Event_0ckfdqz" attachedToRef="prepare_allies_army">
+      <bpmn:outgoing>Flow_0qqxy7e</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1ed4c9a" errorRef="Error_0lqotnq" />
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="think_again" name="Think Again">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="allies" label="Count of Allies" type="string">
+            <camunda:properties />
+            <camunda:validation />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0qqxy7e</bpmn:incoming>
+      <bpmn:outgoing>Flow_1s0cdgh</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0qqxy7e" sourceRef="Event_0ckfdqz" targetRef="think_again" />
+    <bpmn:sequenceFlow id="Flow_1s0cdgh" sourceRef="think_again" targetRef="prepare_allies_army" />
   </bpmn:process>
+  <bpmn:error id="Error_0lqotnq" name="Count of Allies Error" errorCode="count_of_allies_error" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="epic-battle-project-process">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
@@ -128,9 +148,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_027f2sf_di" bpmnElement="Gateway_1xutunl">
         <dc:Bounds x="245" y="392" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_16r83z4_di" bpmnElement="prepare_allies_army">
-        <dc:Bounds x="310" y="290" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1oyjp6v_di" bpmnElement="prepare_enemies_army">
         <dc:Bounds x="310" y="463" width="100" height="80" />
@@ -164,6 +181,13 @@
       <bpmndi:BPMNShape id="Activity_0cu8nfc_di" bpmnElement="return_to_battle">
         <dc:Bounds x="640" y="463" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16r83z4_di" bpmnElement="prepare_allies_army">
+        <dc:Bounds x="310" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0q0rvjs_di" bpmnElement="think_again">
+        <dc:Bounds x="310" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1qp7ezt_di" bpmnElement="Activity_1qp7ezt" isExpanded="true">
         <dc:Bounds x="515" y="80" width="350" height="200" />
       </bpmndi:BPMNShape>
@@ -184,14 +208,17 @@
         <di:waypoint x="740" y="180" />
         <di:waypoint x="792" y="180" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_11rbddc_di" bpmnElement="Event_0ckfdqz">
+        <dc:Bounds x="362" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1fp17al_di" bpmnElement="SequenceFlow_1fp17al">
         <di:waypoint x="195" y="417" />
         <di:waypoint x="245" y="417" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qurl34_di" bpmnElement="Flow_0qurl34">
         <di:waypoint x="270" y="392" />
-        <di:waypoint x="270" y="330" />
-        <di:waypoint x="310" y="330" />
+        <di:waypoint x="270" y="280" />
+        <di:waypoint x="310" y="280" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1isb66y_di" bpmnElement="Flow_1isb66y">
         <di:waypoint x="270" y="442" />
@@ -199,8 +226,8 @@
         <di:waypoint x="310" y="503" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0byjtdx_di" bpmnElement="Flow_0byjtdx">
-        <di:waypoint x="410" y="330" />
-        <di:waypoint x="450" y="330" />
+        <di:waypoint x="410" y="280" />
+        <di:waypoint x="450" y="280" />
         <di:waypoint x="450" y="392" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_128r4ih_di" bpmnElement="Flow_128r4ih">
@@ -273,6 +300,14 @@
         <di:waypoint x="665" y="590" />
         <di:waypoint x="570" y="590" />
         <di:waypoint x="570" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qqxy7e_di" bpmnElement="Flow_0qqxy7e">
+        <di:waypoint x="380" y="222" />
+        <di:waypoint x="380" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1s0cdgh_di" bpmnElement="Flow_1s0cdgh">
+        <di:waypoint x="340" y="160" />
+        <di:waypoint x="340" y="240" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
