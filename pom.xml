@@ -76,6 +76,12 @@
       <artifactId>camunda-engine-plugin-connect</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+      <version>3.0.12</version>
+    </dependency>
+
   </dependencies>
 
   <build>

@@ -168,7 +168,20 @@
           <camunda:inputOutput>
             <camunda:inputParameter name="url">https://api.adviceslip.com/advice</camunda:inputParameter>
             <camunda:inputParameter name="method">GET</camunda:inputParameter>
-            <camunda:outputParameter name="oracle_advice">${ response }</camunda:outputParameter>
+            <camunda:outputParameter name="oracle_advice">
+              <camunda:script scriptFormat="groovy">
+                <![CDATA[
+                    import org.camunda.spin.Spin;
+                    import org.camunda.spin.json.SpinJsonNode;
+
+                    // Parse the JSON response
+                    SpinJsonNode jsonResponse = Spin.JSON(response);
+                    // Extract the "advice" field from the response
+                    def advice = jsonResponse.prop("slip").prop("advice").stringValue();
+                    return advice;
+                ]]>
+              </camunda:script>
+            </camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
