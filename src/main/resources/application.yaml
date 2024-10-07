@@ -5,3 +5,5 @@ camunda.bpm.admin-user:
   password: demo
 
 default_battle_cells_count: 10
+
+camunda.bpm.authorization.enabled: true
